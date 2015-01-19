@@ -13,7 +13,7 @@ var $$ = {
 		for ( var i = 0, len = names.length; i < len; i++ ) {
 			name = names[i];
 			result[name] = {
-				src: ['src/js/intro.js', 'src/js/'+name+'/define.js', 'src/js/'+name+'/functions.js', 'src/js/'+name+'/bind.js', 'src/js/'+name+'/init.js', 'src/js/outro.js'],
+				src: ['src/js/'+name+'/intro.js', 'src/js/'+name+'/define.js', 'src/js/'+name+'/functions.js', 'src/js/'+name+'/bind.js', 'src/js/'+name+'/init.js', 'src/js/'+name+'/outro.js'],
 				dest: 'files/js/'+name+'.js'
 			};
 		}
@@ -37,6 +37,9 @@ var $$ = {
 			result.push('files/js/'+name+'.js');
 		}
 		return result;
+	},
+	isGruntContrib: function ( name ) {
+		return name.substring(0, 6) === 'grunt-';
 	},
 	loadGruntContrib: function (grunt, pkg) {
 		var taskName;
@@ -118,5 +121,4 @@ module.exports = function(grunt) {
 
 	$$.loadGruntContrib(grunt, pkg);
 	grunt.registerTask('default', 'watch');
-
 };
