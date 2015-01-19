@@ -1,21 +1,40 @@
 var $$ = {
-	jsFileNames: function (grunt) {
+	isCoffeeDir: function ( dir, grunt ) {
+		var isCoffee = false;
+		grunt.file.recurse(dir, function (abspath, rootdir, subdir, filename) {
+			if ( filename.match('coffee') ) {
+				isCoffee = true;
+			}
+		});
+		return isCoffee;
+	},
+	jsFileNames: function ( grunt ) {
 		var result = [];
-		grunt.file.recurse('src/js', function (abspath, rootdir, subdir, filename) {
+		grunt.file.recurse('src/scripts', function (abspath, rootdir, subdir, filename) {
 			if (typeof subdir !== 'undefined' && result.indexOf(subdir) === -1 && !subdir.match('_default')) {
 				result.push(subdir);
 			}
 		});
 		return result;
 	},
-	jsConcat: function ( names ) {
-		var result = {}, name;
+	jsConcat: function ( names, grunt ) {
+		var result, name, isCoffee;
+		result = {};
 		for ( var i = 0, len = names.length; i < len; i++ ) {
 			name = names[i];
-			result[name] = {
-				src: ['src/js/'+name+'/intro.js', 'src/js/'+name+'/define.js', 'src/js/'+name+'/functions.js', 'src/js/'+name+'/bind.js', 'src/js/'+name+'/init.js', 'src/js/'+name+'/outro.js'],
-				dest: 'files/js/'+name+'.js'
-			};
+			isCoffee = this.isCoffeeDir( 'src/scripts/'+name, grunt );
+			if ( isCoffee ) {
+				result[name] = {
+					src: ['src/scripts/'+name+'/*.coffee'],
+					dest: 'src/scripts/'+name+'.coffee'
+				};
+			}
+			else {
+				result[name] = {
+					src: ['src/scripts/'+name+'/*.js'],
+					dest: 'files/js/'+name+'.js'
+				};
+			}
 		}
 		return result;
 	},
@@ -61,13 +80,24 @@ var $$ = {
 };
 
 module.exports = function(grunt) {
-	var pkg = grunt.file.readJSON('package.json');
+	var pkg         = grunt.file.readJSON('package.json');
 	var jsFileNames = $$.jsFileNames(grunt);
 
 	grunt.initConfig({
 
 		// javascript
-		concat: $$.jsConcat( jsFileNames ),
+		concat: $$.jsConcat( jsFileNames, grunt ),
+		coffee: {
+			compile: {
+				files: [{
+					expand: true,
+					cwd: 'src/scripts',
+					src: ['*.coffee'],
+					dest: 'files/js',
+					ext: '.js'
+				}]
+			}
+		},
 		uglify: $$.jsUglify( jsFileNames ),
 
 		// css
@@ -109,8 +139,8 @@ module.exports = function(grunt) {
         // watch
 		watch: {
 			js: {
-				files: ['src/js/*.js', 'src/js/**/*.js'],
-				tasks: ['concat', 'uglify']
+				files: ['src/scripts/**/*.js', 'src/scripts/**/*.coffee'],
+				tasks: ['concat', 'coffee', 'uglify']
 			},
 			sass: {
 				files: ['src/sass/*.scss', 'src/sass/*.sass'],
