@@ -7,6 +7,7 @@ do (window = window, $ = jQuery) ->
 	# ================================================
 
 	$window = $ window
+	$body   = $ 'body'
 
 
 

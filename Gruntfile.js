@@ -1,92 +1,76 @@
-var $$ = {
-	isCoffeeDir: function ( dir, grunt ) {
+function funcs( grunt ) {
+	function isCoffeeDir( dir ) {
 		var isCoffee = false;
 		grunt.file.recurse(dir, function (abspath, rootdir, subdir, filename) {
-			if ( filename.match('coffee') ) {
+			if ( filename.match('.coffee') ) {
 				isCoffee = true;
 			}
 		});
 		return isCoffee;
-	},
-	jsFileNames: function ( grunt ) {
-		var result = [];
-		grunt.file.recurse('src/scripts', function (abspath, rootdir, subdir, filename) {
-			if (typeof subdir !== 'undefined' && result.indexOf(subdir) === -1 && !subdir.match('_default')) {
-				result.push(subdir);
-			}
-		});
-		return result;
-	},
-	jsConcat: function ( names, grunt ) {
-		var result, name, isCoffee;
-		result = {};
-		for ( var i = 0, len = names.length; i < len; i++ ) {
-			name = names[i];
-			isCoffee = this.isCoffeeDir( 'src/scripts/'+name, grunt );
-			if ( isCoffee ) {
-				result[name] = {
-					src: ['src/scripts/'+name+'/*.coffee'],
-					dest: 'src/scripts/'+name+'.coffee'
-				};
-			}
-			else {
-				result[name] = {
-					src: ['src/scripts/'+name+'/*.js'],
-					dest: 'files/js/'+name+'.js'
-				};
-			}
-		}
-		return result;
-	},
-	jsUglify: function ( names ) {
-		var result = {}, name;
-		for ( var i = 0, len = names.length; i < len; i++ ) {
-			name = names[i];
-			result[name] = {
-				src: 'files/js/'+name+'.js',
-				dest: 'files/js/'+name+'.min.js'
-			};
-		}
-		return result;
-	},
-	jsJshintDist: function ( names ) {
-		var result = [], name;
-		for ( var i = 0, len = names.length; i < len; i++ ) {
-			name = names[i];
-			result.push('files/js/'+name+'.js');
-		}
-		return result;
-	},
-	isGruntContrib: function ( name ) {
-		return name.substring(0, 6) === 'grunt-';
-	},
-	loadGruntContrib: function (grunt, pkg) {
-		var taskName;
-		for ( taskName in pkg.devDependencies ) {
-			if (taskName.substring(0, 6) === 'grunt-') {
-				grunt.loadNpmTasks(taskName);
-			}
-		}
-	},
-	cssExpandedFileNames: function (grunt) {
-		var result = [];
-		grunt.file.recurse('files/css/', function (abspath, rootdir, subdir, filename) {
-			if ( !filename.match('.min.css') && !filename.match('.DS_Store') ) {
-				result.push(filename);
-			}
-		});
-		return result;
 	}
+	var module = {
+		jsFileNames: function () {
+			var result = [];
+			grunt.file.recurse('src/scripts', function (abspath, rootdir, subdir, filename) {
+				if (typeof subdir !== 'undefined' && result.indexOf(subdir) === -1 && !subdir.match('_default')) {
+					result.push(subdir);
+				}
+			});
+			return result;
+		},
+		jsConcat: function ( names ) {
+			var result = {};
+			names.reduce(function ( result, item ) {
+				var isCoffee = isCoffeeDir( 'src/scripts/'+item, grunt );
+				var type     = isCoffee ? 'coffee' : 'js';
+				var destPath = isCoffee ? 'src/scripts/' : 'files/js/';
+				result[item] = {
+					src: ['src/scripts/'+item+'/*.'+type],
+					dest: destPath+item+'.'+type
+				};
+			}, result);
+			return result;
+		},
+		jsUglify: function ( names ) {
+			var result = {};
+			names.reduce(function ( result, item ) {
+				result[item] = {
+					src: 'files/js/'+item+'.js',
+					dest: 'files/js/'+item+'.min.js'
+				};
+			}, result);
+			return result;
+		},
+		jshintDist: function ( names ) {
+			var paths;
+			paths = names.map(function ( item ) {
+				return 'files/js/'+item+'.js';
+			});
+			return paths;
+		},
+		csslintSrc: function () {
+			var result = [];
+			grunt.file.recurse('files/css/', function (abspath, rootdir, subdir, filename) {
+				if ( !filename.match('.min.css') && !filename.match('.DS_Store') ) {
+					result.push( filename );
+				}
+			});
+			return result;
+		}
+	};
+	return module;
 };
 
-module.exports = function(grunt) {
+module.exports = function( grunt ) {
+	var $fn         = funcs( grunt );
 	var pkg         = grunt.file.readJSON('package.json');
-	var jsFileNames = $$.jsFileNames(grunt);
+	var jsFileNames = $fn.jsFileNames();
+	var taskNames   = Object.keys( pkg.devDependencies );
 
 	grunt.initConfig({
 
 		// javascript
-		concat: $$.jsConcat( jsFileNames, grunt ),
+		concat: $fn.jsConcat( jsFileNames ),
 		coffee: {
 			compile: {
 				files: [{
@@ -98,7 +82,7 @@ module.exports = function(grunt) {
 				}]
 			}
 		},
-		uglify: $$.jsUglify( jsFileNames ),
+		uglify: $fn.jsUglify( jsFileNames ),
 
 		// css
         compass: {
@@ -123,16 +107,28 @@ module.exports = function(grunt) {
 			}
 		},
 
+		// images
+		imagemin: {
+			dynamic: {
+				files: [{
+					expand: true,
+					cwd: 'src/images/',
+					src: ['*.{png,jpg,gif}'],
+					dest: 'files/images/'
+				}]
+			}
+		},
+
 		// checker
 		jshint: {
-			dist: $$.jsJshintDist( jsFileNames ),
+			dist: $fn.jshintDist( jsFileNames ),
 			options: {
 				jshintrc: true
 			}
 		},
         csslint: {
         	check: {
-        		src: $$.cssExpandedFileNames(grunt)
+        		src: $fn.csslintSrc()
         	}
         },
 
@@ -145,10 +141,18 @@ module.exports = function(grunt) {
 			sass: {
 				files: ['src/sass/*.scss', 'src/sass/*.sass'],
 				tasks: ['compass', 'cssmin']
+			},
+			images: {
+				files: 'src/images/*.{png,jpg,gif}',
+				tasks: ['imagemin']
 			}
 		}
 	});
 
-	$$.loadGruntContrib(grunt, pkg);
+	taskNames.forEach(function ( item ) {
+		if ( item.substring(0, 6) === 'grunt-' ) {
+			grunt.loadNpmTasks( item );
+		}
+	});
 	grunt.registerTask('default', 'watch');
 };

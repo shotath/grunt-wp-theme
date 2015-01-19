@@ -1,7 +1,8 @@
 (function() {
   (function(window, $) {
-    var $window;
+    var $body, $window;
     $window = $(window);
+    $body = $('body');
     (function() {})();
   })(window, jQuery);
 
