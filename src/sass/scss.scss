@@ -1,0 +1,5 @@
+@import 'compass';
+@import 'setting';
+div {
+	@include transition(all, 0.2s)
+}

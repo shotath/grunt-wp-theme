@@ -18,13 +18,6 @@ function addMenus() {
 	// add_menu_page( 'ヘルプ', 'ヘルプ', 'level_0', 'my-help', 'pageActionHelp', 'dashicons-heart' );
 }
 // function pageActionHelp() {
-// 	global $ymk;
-// 	$ymk->get_and_store_tweets();
-// 	$ymk->get_and_store_playlist();
-
-// 	echo '<div class="wrap">';
-// 	echo '<p>Updated tweets & playlist on DB.</p>';
-// 	echo '</div>';
 // }
 
 function removeMenus () {
