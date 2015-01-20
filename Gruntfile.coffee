@@ -11,7 +11,7 @@ funcs = ( grunt ) ->
         result = []
         grunt.file.recurse 'src/scripts', ( abspath, rootdir, subdir, filename ) ->
             if ( subdir )
-                if ( not (subdir in result) )
+                if not ( subdir in result )
                     if ( not subdir.match '_default' )
                         result.push subdir
             return
@@ -28,24 +28,9 @@ funcs = ( grunt ) ->
                 dest: destPath+name+'.'+type
         return result
 
-    jshintDist = ( names ) ->
-        paths = names.map ( item ) ->
-            'files/js/'+item+'.js'
-        return paths
-
-    csslintSrc = ->
-        result = []
-        grunt.file.recurse 'files/css/', ( abspath, rootdir, subdir, filename ) ->
-            if ( not filename.match '.min.css' ) and ( not filename.match '.DS_Store' )
-                result.push filename
-            return
-        return result
-
     fn =
         jsFileNames: jsFileNames
         jsConcat   : jsConcat
-        jshintDist : jshintDist
-        csslintSrc : csslintSrc
 
     return fn
 
@@ -110,12 +95,12 @@ module.exports = ( grunt ) ->
 
         # checker
         jshint:
-            dist: fn.jshintDist jsFileNames
+            dist: ['files/js/*.js']
             options:
                 jshintrc: true
         csslint:
             check:
-                src: fn.csslintSrc()
+                src: ['files/css/*.css']
 
         # compress
         compress:
