@@ -28,14 +28,6 @@ funcs = ( grunt ) ->
                 dest: destPath+name+'.'+type
         return result
 
-    jsUglify = ( names ) ->
-        result = {}
-        for name in names
-            result[name] =
-                src: 'files/js/'+name+'.js'
-                dest: 'files/js/'+name+'.js'
-        return result
-
     jshintDist = ( names ) ->
         paths = names.map ( item ) ->
             'files/js/'+item+'.js'
@@ -52,7 +44,6 @@ funcs = ( grunt ) ->
     fn =
         jsFileNames: jsFileNames
         jsConcat   : jsConcat
-        jsUglify   : jsUglify
         jshintDist : jshintDist
         csslintSrc : csslintSrc
 
@@ -79,7 +70,15 @@ module.exports = ( grunt ) ->
                     dest: 'files/js'
                     ext: '.js'
                 ]
-        uglify: fn.jsUglify jsFileNames
+        uglify:
+            target:
+                files: [
+                    expand: true
+                    cwd: 'files/js'
+                    src: ['*.js']
+                    dest: 'files/js'
+                    ext: '.js'
+                ]
 
         # css
         compass:
@@ -118,6 +117,16 @@ module.exports = ( grunt ) ->
             check:
                 src: fn.csslintSrc()
 
+        # compress
+        compress:
+            main:
+                options:
+                    mode: 'gzip'
+                expand: true
+                cwd: 'files/'
+                src: ['**/*.{css,js,png,jpg,gif,svg}']
+                dest: 'files/'
+
         # watch
         watch:
             js:
@@ -137,6 +146,6 @@ module.exports = ( grunt ) ->
         return
 
     grunt.registerTask 'default', 'watch'
-    grunt.registerTask 'releace', ['cssmin', 'uglify']
+    grunt.registerTask 'releace', ['cssmin', 'uglify', 'compress']
 
     return
