@@ -10,7 +10,7 @@ module.exports = ( grunt ) ->
                 options:
                     bare: true
                     sourceMap: true
-                    sourceMapDir: 'files/js/maps'
+                    sourceMapDir: 'files/js/maps/'
                 files: [
                     expand: true
                     cwd: 'src/coffee'
