@@ -1,84 +1,49 @@
-funcs = ( grunt ) ->
-
-    isCoffeeDir = ( dir ) ->
-        isCoffee = false
-        grunt.file.recurse dir, ( abspath, rootdir, subdir, filename ) ->
-            isCoffee = true if filename.match '.coffee'
-            return
-        return isCoffee
-
-    jsFileNames = ->
-        result = []
-        grunt.file.recurse 'src/scripts', ( abspath, rootdir, subdir, filename ) ->
-            if ( subdir )
-                if not ( subdir in result )
-                    if ( not subdir.match '_default' )
-                        result.push subdir
-            return
-        return result
-
-    jsConcat = ( names ) ->
-        result = {}
-        for name in names
-            isCoffee =  isCoffeeDir( 'src/scripts/'+name )
-            type     = if isCoffee then 'coffee' else 'js'
-            destPath = if isCoffee then 'src/scripts/' else 'files/js/'
-            result[name] =
-                src: ['src/scripts/'+name+'/*.'+type]
-                dest: destPath+name+'.'+type
-        return result
-
-    fn =
-        jsFileNames: jsFileNames
-        jsConcat   : jsConcat
-
-    return fn
-
-
-
 module.exports = ( grunt ) ->
-    fn          = funcs grunt
     pkg         = grunt.file.readJSON 'package.json'
-    jsFileNames = fn.jsFileNames()
     taskNames   = Object.keys pkg.devDependencies
 
     grunt.initConfig
 
         # javascript
-        concat: fn.jsConcat jsFileNames
         coffee:
             compile:
+                options:
+                    bare: true
+                    sourceMap: true
+                    sourceMapDir: 'files/js/maps/'
                 files: [
-                    expand: true,
-                    cwd: 'src/scripts'
-                    src: ['*.coffee']
+                    expand: true
+                    cwd: 'src/coffee'
+                    src: [ '{,*/}*.coffee' ]
                     dest: 'files/js'
                     ext: '.js'
+                    extDot: 'last'
                 ]
         uglify:
             target:
                 files: [
                     expand: true
                     cwd: 'files/js'
-                    src: ['*.js']
+                    src: [ '*.js' ]
                     dest: 'files/js'
-                    ext: '.js'
+                    ext: '.min.js'
+                    extDot: 'last'
                 ]
 
         # css
         compass:
             compile:
                 options:
-                    cssDir     : 'files/css'
-                    sassDir    : 'src/sass'
-                    imagesDir  : 'files/images'
+                    cssDir: 'files/css'
+                    sassDir: 'src/sass'
+                    imagesDir: 'files/images'
                     outputStyle: 'expanded'
         cssmin:
             target:
                 files: [
                     expand: true
                     cwd: 'files/css'
-                    src: ['*.css']
+                    src: [ '*.css' ]
                     dest: 'files/css'
                     ext: '.css'
                 ]
@@ -88,19 +53,27 @@ module.exports = ( grunt ) ->
             dynamic:
                 files: [
                     expand: true
+                    cwd: 'files/images/'
+                    src: [ '*.{png,jpg,gif}' ]
+                    dest: 'files/images/'
+                ]
+        copy:
+            main:
+                files: [
+                    expand: true
                     cwd: 'src/images/'
-                    src: ['*.{png,jpg,gif}']
+                    src: [ '**' ]
                     dest: 'files/images/'
                 ]
 
         # checker
         jshint:
-            dist: ['files/js/*.js']
+            dist: [ 'files/js/*.js' ]
             options:
                 jshintrc: true
         csslint:
             check:
-                src: ['files/css/*.css']
+                src: [ 'files/css/*.css' ]
 
         # compress
         compress:
@@ -109,28 +82,28 @@ module.exports = ( grunt ) ->
                     mode: 'gzip'
                 expand: true
                 cwd: 'files/'
-                src: ['**/*.{css,js,png,jpg,gif,svg}']
+                src: [ '**/*.{css,js,png,jpg,gif,svg}' ]
                 dest: 'files/'
 
         # watch
         watch:
-            js:
-                files: ['src/scripts/**/*.js', 'src/scripts/**/*.coffee']
-                tasks: ['concat', 'coffee']
+            coffee:
+                files: [ 'src/coffee/*.coffee' ]
+                tasks: [ 'coffee' ]
             sass:
-                files: ['src/sass/*.scss', 'src/sass/*.sass']
-                tasks: ['compass']
+                files: [ 'src/sass/*.sass', 'src/sass/**/*.sass' ]
+                tasks: [ 'compass' ]
             images:
-                files: 'src/images/*.{png,jpg,gif}'
-                tasks: ['imagemin']
+                files: [ 'src/images/*' ]
+                tasks: [ 'copy' ]
 
 
     taskNames.forEach ( item ) ->
-        if item.substring(0, 6) is 'grunt-'
+        if item.substring( 0, 6 ) is 'grunt-'
             grunt.loadNpmTasks item
         return
 
     grunt.registerTask 'default', 'watch'
-    grunt.registerTask 'releace', ['cssmin', 'uglify', 'compress']
+    grunt.registerTask 'releace', [ 'cssmin', 'uglify', 'imagemin' ]
 
     return
