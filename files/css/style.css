@@ -3,7 +3,7 @@ html {
   font-family: sans-serif;
   font-size: 62.5%;
   -webkit-text-size-adjust: 100%;
-  color: black;
+  color: #000000;
   width: 100%;
   min-height: 100%;
 }
@@ -30,13 +30,11 @@ input {
   background: transparent;
   width: 100%;
   border: 0;
-  -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
   box-sizing: border-box;
-  -webkit-border-radius: 0;
   -moz-border-radius: 0;
-  -ms-border-radius: 0;
-  -o-border-radius: 0;
+  -webkit-border-radius: 0;
   border-radius: 0;
 }
 /* line 25, ../../src/sass/_base.sass */
@@ -54,13 +52,11 @@ textarea {
   -webkit-appearance: none;
   width: 100%;
   border: 0;
-  -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
   box-sizing: border-box;
-  -webkit-border-radius: 0;
   -moz-border-radius: 0;
-  -ms-border-radius: 0;
-  -o-border-radius: 0;
+  -webkit-border-radius: 0;
   border-radius: 0;
 }
 /* line 37, ../../src/sass/_base.sass */
@@ -100,43 +96,43 @@ textarea:focus {
   }
 }
 @media only screen and (min-width: 769px) {
-  /* line 3, ../../src/sass/layouts/_layouts.sass */
-  .narrow-only {
-    display: none;
-  }
-
-  /* line 6, ../../src/sass/layouts/_layouts.sass */
+  /* line 4, ../../src/sass/layouts/_layouts.sass */
   .column-right {
     float: right;
   }
 
-  /* line 8, ../../src/sass/layouts/_layouts.sass */
+  /* line 6, ../../src/sass/layouts/_layouts.sass */
   .column-left {
     float: left;
   }
 
-  /* line 10, ../../src/sass/layouts/_layouts.sass */
+  /* line 8, ../../src/sass/layouts/_layouts.sass */
   .column-center {
     margin: 0 auto;
   }
 
-  /* line 13, ../../src/sass/layouts/_layouts.sass */
+  /* line 11, ../../src/sass/layouts/_layouts.sass */
   .column-gold-wide {
     width: 60%;
   }
 
-  /* line 15, ../../src/sass/layouts/_layouts.sass */
+  /* line 13, ../../src/sass/layouts/_layouts.sass */
   .column-gold-narrow {
     width: 36%;
   }
 
-  /* line 18, ../../src/sass/layouts/_layouts.sass */
+  /* line 16, ../../src/sass/layouts/_layouts.sass */
   .column-silver-wide {
     width: 68%;
   }
 
-  /* line 20, ../../src/sass/layouts/_layouts.sass */
+  /* line 18, ../../src/sass/layouts/_layouts.sass */
   .column-silver-narrow {
     width: 28%;
+  }
+
+  /* line 21, ../../src/sass/layouts/_layouts.sass */
+  .column-half {
+    width: 48%;
   }
 }
