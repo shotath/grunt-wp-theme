@@ -38,6 +38,7 @@ module.exports = ( grunt ) ->
                     sassDir: 'src/sass'
                     imagesDir: 'files/images'
                     outputStyle: 'expanded'
+                    noLineComments: true
         cssmin:
             target:
                 files: [
