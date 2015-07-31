@@ -13,9 +13,19 @@
 	height: 0
 
 @media only screen and ( max-width: 768px )
-	.wide-only
-		display: none
+	.desctop-only
+		display: none !important
 
 @media only screen and ( min-width: 769px )
+	.mobile-only
+		display: none !important
+
+@media only screen and ( min-width: 541px )
 	.narrow-only
-		display: none
+		display: none !important
+
+.ie8
+	.mobile-only
+		display: none !important
+	.narrow-only
+		display: none !important
