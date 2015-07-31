@@ -5,6 +5,13 @@
 		display: block
 		clear: both
 
+=sprite()
+	display: block
+	overflow: hidden
+	height: 0
+	color: transparent
+	font-size: 0
+
 =keyframes( $name )
 	@-webkit-keyframes #{ $name }
 		@content
@@ -19,12 +26,30 @@
 	animation: $props
 	-webkit-animation: $props
 
+=transform-style( $prop )
+	-webkit-transform-style: $prop
+	-ms-transform-style: $prop
+	transform-style: $prop
+
+=perform-animation()
+	+transform( translate3d( 0, 0, 0 ) )
+	+transform-style( preserve-3d )
+
+=one-line-leader()
+	overflow: hidden
+	white-space: nowrap
+	text-overflow: ellipsis
+
+=z-indexer( $layer, $offset: 0 )
+	$distance: 1000
+	$layers: contents, navigation, loader
+	z-index: index( $layers, $layer ) * $distance + $offset
+
 =selection
 	::selection
 		@content
 	::-moz-selection
 		@content
-
 
 =e( $name )
 	@at-root   #{&}__#{$name}

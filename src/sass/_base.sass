@@ -17,6 +17,7 @@ img
 
 input
 	-webkit-appearance: none
+	appearance: none
 	background: transparent
 	width: 100%
 	border: 0
@@ -30,9 +31,16 @@ input
 textarea
 	resize: vertical
 	-webkit-appearance: none
+	appearance: none
 	width: 100%
 	border: 0
 	+box-sizing( border-box )
 	+border-radius( 0 )
+	&:focus
+		outline: none
+
+select
+	-webkit-appearance: none
+	appearance: none
 	&:focus
 		outline: none
