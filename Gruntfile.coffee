@@ -2,6 +2,20 @@ module.exports = ( grunt ) ->
     pkg         = grunt.file.readJSON 'package.json'
     taskNames   = Object.keys pkg.devDependencies
 
+    compressFiles = ( extsDirs ) ->
+        files = []
+        Object.keys( extsDirs ).forEach ( ext ) ->
+            dir = extsDirs[ ext ]
+            file =
+                expand: true
+                cwd: 'files/' + dir + '/'
+                src: [ '*.' + ext ]
+                dest: 'files/' + dir + '/'
+                ext: '.' + ext + '.gz'
+                extDot: 'last'
+            files.push file
+        return files
+
     grunt.initConfig
 
         # javascript
@@ -81,10 +95,13 @@ module.exports = ( grunt ) ->
             main:
                 options:
                     mode: 'gzip'
-                expand: true
-                cwd: 'files/'
-                src: [ '**/*.{css,js,png,jpg,gif,svg}' ]
-                dest: 'files/'
+                files: compressFiles
+                    js: 'js'
+                    css: 'css'
+                    png: 'images'
+                    jpg: 'images'
+                    jpeg: 'images'
+                    gif: 'images'
 
         # watch
         watch:
@@ -105,6 +122,6 @@ module.exports = ( grunt ) ->
         return
 
     grunt.registerTask 'default', 'watch'
-    grunt.registerTask 'releace', [ 'cssmin', 'uglify', 'imagemin' ]
+    grunt.registerTask 'release', [ 'cssmin', 'uglify', 'imagemin', 'compress' ]
 
     return
